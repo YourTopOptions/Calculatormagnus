@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Options Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #007BFF;
+            border-radius: 5px;
+            background-color: #f0f8ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Options Calculator</h1>
+        <label for="ticker">Stock Ticker:</label>
+        <input type="text" id="ticker" placeholder="Enter stock ticker (e.g., MSFT)">
+
+        <label for="quantity">Number of Shares (in multiples of 100):</label>
+        <input type="number" id="quantity" placeholder="Enter quantity of shares (e.g., 100, 200)">
+
+        <label for="stockPrice">Stock Price at Purchase:</label>
+        <input type="number" id="stockPrice" placeholder="Enter stock price">
+
+        <label for="cycleDays">Transaction Cycle Length (in days):</label>
+        <input type="number" id="cycleDays" placeholder="Enter cycle length in days">
+
+        <label for="callStrike">CALL Option Strike Price:</label>
+        <input type="number" id="callStrike" placeholder="Enter CALL strike price">
+
+        <label for="callPremium">CALL Option Premium Received:</label>
+        <input type="number" id="callPremium" placeholder="Enter CALL premium">
+
+        <label for="putStrike">PUT Option Strike Price:</label>
+        <input type="number" id="putStrike" placeholder="Enter PUT strike price">
+
+        <label for="putCost">PUT Option Premium Paid:</label>
+        <input type="number" id="putCost" placeholder="Enter PUT premium">
+
+        <label for="dividend">Total Dividend Expected During Cycle:</label>
+        <input type="number" id="dividend" placeholder="Enter total expected dividend">
+
+        <label for="currentStockPrice">Current Stock Price (optional):</label>
+        <input type="number" id="currentStockPrice" placeholder="Enter current stock price">
+
+        <label for="callCloseCost">CALL Closing Cost (optional):</label>
+        <input type="number" id="callCloseCost" placeholder="Enter CALL closing cost">
+
+        <label for="putCloseCost">PUT Closing Cost (optional):</label>
+        <input type="number" id="putCloseCost" placeholder="Enter PUT closing cost">
+
+        <button onclick="calculateResults()">Calculate</button>
+
+        <div id="results" class="result" style="display: none;">
+            <p><strong>Total Stock Cost:</strong> <span id="stockCost"></span></p>
+            <p><strong>CALL Premium Income:</strong> <span id="callIncome"></span></p>
+            <p><strong>PUT Premium Cost:</strong> <span id="putExpense"></span></p>
+            <p><strong>Net Premium Income:</strong> <span id="netPremium"></span></p>
+            <p><strong>Cycle Return (%):</strong> <span id="cycleReturn"></span></p>
+            <p><strong>Annualized Return (%):</strong> <span id="annualReturn"></span></p>
+            <p><strong>Maximum Income:</strong> <span id="maxIncome"></span></p>
+            <p><strong>Maximum Income (%):</strong> <span id="maxIncomePercent"></span></p>
+            <p><strong>Annualized Maximum Income (%):</strong> <span id="annualMaxIncome"></span></p>
+            <p><strong>Maximum Loss:</strong> <span id="maxLoss"></span></p>
+            <p><strong>Current Profit/Loss:</strong> <span id="currentProfit"></span></p>
+            <p><strong>Current Return (%):</strong> <span id="currentReturn"></span></p>
+        </div>
+    </div>
+
+    <script>
+        function calculateResults() {
+            const ticker = document.getElementById('ticker').value;
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const stockPrice = parseFloat(document.getElementById('stockPrice').value);
+            const cycleDays = parseInt(document.getElementById('cycleDays').value);
+            const callStrike = parseFloat(document.getElementById('callStrike').value);
+            const callPremium = parseFloat(document.getElementById('callPremium').value);
+            const putStrike = parseFloat(document.getElementById('putStrike').value);
+            const putCost = parseFloat(document.getElementById('putCost').value);
+            const dividend = parseFloat(document.getElementById('dividend').value);
+
+            const currentStockPrice = parseFloat(document.getElementById('currentStockPrice').value);
+            const callCloseCost = parseFloat(document.getElementById('callCloseCost').value);
+            const putCloseCost = parseFloat(document.getElementById('putCloseCost').value);
+
+            if (isNaN(quantity) || isNaN(stockPrice) || isNaN(cycleDays) || isNaN(callStrike) || isNaN(callPremium) || isNaN(putStrike) || isNaN(putCost) || isNaN(dividend)) {
+                alert('Please fill in all required fields with valid numbers.');
+                return;
+            }
+
+            // Calculate Total Stock Cost
+            const stockCost = stockPrice * quantity;
+
+            // Premium Income and Net Premiums
+            const callIncome = callPremium * quantity;
+            const putExpense = putCost * quantity;
+            const netPremium = callIncome - putExpense;
+
+            // Cycle and Annualized Returns
+            const cycleReturn = (netPremium / stockCost) * 100;
+            const annualReturn = (cycleReturn / cycleDays) * 365;
+
+            // Maximum Income
+            const maxIncome = netPremium + dividend + (callStrike - stockPrice) * quantity;
+            const maxIncomePercent = (maxIncome / stockCost) * 100;
+            const annualMaxIncome = (maxIncomePercent / cycleDays) * 365;
+
+            // Maximum Loss
+            const maxLoss = (stockPrice - putStrike) * quantity + putExpense - callIncome;
+
+            // Current Profit/Loss (if data provided)
+            let currentProfit = 0;
+            let currentReturn = 0;
+            if (!isNaN(currentStockPrice) && !isNaN(callCloseCost) && !isNaN(putCloseCost)) {
+                const currentNetPremium = callIncome - callCloseCost + putCloseCost - putExpense;
+                const currentStockValue = currentStockPrice * quantity;
+                currentProfit = currentNetPremium + currentStockValue - stockCost;
+                currentReturn = (currentProfit / stockCost) * 100;
+            }
+
+            // Display Results
+            document.getElementById('stockCost').innerText = stockCost.toFixed(2);
+            document.getElementById('callIncome').innerText = callIncome.toFixed(2);
+            document.getElementById('putExpense').innerText = putExpense.toFixed(2);
+            document.getElementById('netPremium').innerText = netPremium.toFixed(2);
+            document.getElementById('cycleReturn').innerText = cycleReturn.toFixed(2) + '%';
+            document.getElementById('annualReturn').innerText = annualReturn.toFixed(2) + '%';
+            document.getElementById('maxIncome').innerText = maxIncome.toFixed(2);
+            document.getElementById('maxIncomePercent').innerText = maxIncomePercent.toFixed(2) + '%';
+            document.getElementById('annualMaxIncome').innerText = annualMaxIncome.toFixed(2) + '%';
+            document.getElementById('maxLoss').innerText = maxLoss.toFixed(2);
+            document.getElementById('currentProfit').innerText = currentProfit.toFixed(2);
+            document.getElementById('currentReturn').innerText = currentReturn.toFixed(2) + '%';
+
+            document.getElementById('results').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
